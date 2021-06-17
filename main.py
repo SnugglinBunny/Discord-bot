@@ -5,6 +5,9 @@ from decouple import config
 
 TOKEN = config('DISCORD_TOKEN')
 GUILD = config('DISCORD_GUILD')
+RESPONSES = {'jay': 'love u jay',
+'thomas': 'taste the cum'
+}
 
 intents = discord.Intents.default()
 intents.members = True
@@ -26,9 +29,8 @@ class CustomClient(discord.Client):
         if message.author == client.user:
             return
 
-        if message.content == 'jay':
-            await message.channel.send("jay is a cuck")
-    
+        if message.content in RESPONSES.keys():
+            await message.channel.send(RESPONSES[message.content])
 
 client = CustomClient(intents=intents)
 client.run(TOKEN)
