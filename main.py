@@ -2,6 +2,9 @@ import discord
 from decouple import config
 import tweepy
 import json
+import requests
+import uuid
+import os
 
 TOKEN = config('DISCORD_TOKEN')
 GUILD = config('DISCORD_GUILD')
@@ -19,12 +22,14 @@ auth = tweepy.OAuthHandler(config('API_KEY'),config('API_SECRET_KEY'))
 auth.set_access_token(config('ACCESS_TOKEN'),config('ACCESS_TOKEN_SECRET'))
 api = tweepy.API(auth)
 
+#verify we can access the twitter account
 try:
     api.verify_credentials()
     print("Authentication OK")
 except:
     print("Error during authentication")
 
+#setup discord client class
 class CustomClient(discord.Client):
     async def on_ready(self):
         guild = discord.utils.get(client.guilds, name=GUILD)
@@ -38,26 +43,60 @@ class CustomClient(discord.Client):
         members = '\n - '.join([member.name for member in guild.members])
         print(f'Guild Members:\n - {members}')
 
-    # async def on_member_join(self, member):
-    #     try:
-    #         await member.create_dm()
-    #         await member.dm_channel.send(f"Hi {member.name}, fuck you.")
-    #     except:
-    #         await general_channel.send("Cannot dm this user")
-
     async def on_message(self, message):
-        if message.author == client.user:
-            return
+        if message.channel.name == config('GENERAL_CHANNEL_NAME'):
+            if message.author == client.user or message.author.bot:
+                return
 
-        elif message.content.find("tweet") == 0:
-            new_status = message.content.split(' ', 1)
-            escaped_status = new_status[1].replace("@ ", "@")
-            api.update_status(status=escaped_status)
-            await message.channel.send(f"Tweet sent https://twitter.com/{TWITTER_USER}/status/{api.user_timeline(screen_name=TWITTER_USER, count = 1)[0].id}")
+            if message.content.lower().find("tweet") == 0:
+                 #clean user typed message
+                new_status = message.content.split(' ', 1)
+                escaped_status = new_status[1].replace("@ ", "@")
 
-        elif message.content in RESPONSES.keys():
-            await message.channel.send(RESPONSES[message.content])
+                #create unique filename
+                uid = uuid.uuid4().hex
+
+                #if we have an attackment
+                if len(message.attachments) > 0:
+                    #get attachment url
+                    url = message.attachments[0].url
+                    #get file response from url
+                    response = requests.get(url, stream=True)
+                    extension = os.path.splitext(url)[1]
+                    
+                    filename = f"{uid}{extension}"
+                    #write file
+                    with open(filename, 'wb') as f:
+                        f.write(response.content)
+
+                    media = api.media_upload(filename)
+                    #update status with media (deprecated but works, use an alternative)
+                    try:
+                        api.update_status(status=escaped_status, media_ids=[media.media_id])
+                    except:
+                        return
+                    #delete file
+                    os.remove(filename)
+                else:
+                    api.update_status(status=escaped_status)
+                await message.channel.send(f"Tweet sent https://twitter.com/{TWITTER_USER}/status/{api.user_timeline(screen_name=TWITTER_USER, count = 1)[0].id}")
+
+            #if we don't have an image
+            elif message.content in RESPONSES.keys():
+                await message.channel.send(RESPONSES[message.content])
+
+            elif message.content == 'bot.cleanse':
+                print(message.author)
+                count=0
+                for tweet in api.user_timeline(count=100):
+                    if tweet.retweet_count == 0 and tweet.favorite_count == 0:
+                        count+=1
+                        api.destroy_status(tweet.id)
+                await message.channel.send(f"We have deleted {count} total tweets with no likes or retweets.")
+
+            #if the message was not recognized as a command
+            else:
+                print(f"{message.content} not a valid command")
 
 client = CustomClient(intents=intents)
 client.run(TOKEN)
-
