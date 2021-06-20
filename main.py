@@ -5,6 +5,7 @@ import json
 
 TOKEN = config('DISCORD_TOKEN')
 GUILD = config('DISCORD_GUILD')
+TWITTER_USER = config('TWITTER_USERNAME')
 RESPONSES = {'jay': 'Server god sparks thank u',
 'thomas': 'loves it when it rains at download'
 }
@@ -51,7 +52,7 @@ class CustomClient(discord.Client):
         elif message.content.find("tweet") == 0:
             new_status = message.content.split(' ', 1)
             api.update_status(status=new_status[1])
-            await message.channel.send(f"Tweet sent https://twitter.com/suisadbvy/status/{api.user_timeline(screen_name='suisadbvy', count = 1)[0].id}")
+            await message.channel.send(f"Tweet sent https://twitter.com/{TWITTER_USER}/status/{api.user_timeline(screen_name=TWITTER_USER, count = 1)[0].id}")
 
         elif message.content in RESPONSES.keys():
             await message.channel.send(RESPONSES[message.content])
