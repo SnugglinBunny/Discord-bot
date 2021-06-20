@@ -51,7 +51,8 @@ class CustomClient(discord.Client):
 
         elif message.content.find("tweet") == 0:
             new_status = message.content.split(' ', 1)
-            api.update_status(status=new_status[1])
+            escaped_status = new_status[1].replace("@ ", "@")
+            api.update_status(status=escaped_status)
             await message.channel.send(f"Tweet sent https://twitter.com/{TWITTER_USER}/status/{api.user_timeline(screen_name=TWITTER_USER, count = 1)[0].id}")
 
         elif message.content in RESPONSES.keys():
