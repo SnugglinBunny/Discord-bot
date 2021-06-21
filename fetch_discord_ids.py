@@ -17,7 +17,7 @@ class CustomClient(discord.Client):
         print(f"{client.user} is connected to {guild.name} using id {guild.id}")
 
         for member in guild.members:
-            member_lookup[member.name] = {'discord_id': member.id,
+            member_lookup[member.id] = {'discord_name': member.name,
                                             'twitter_handle': None}
         
         with open('members.json', 'w') as outfile:
