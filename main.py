@@ -10,8 +10,9 @@ TOKEN = config('DISCORD_TOKEN')
 GUILD = config('DISCORD_GUILD')
 TWITTER_USER = config('TWITTER_USERNAME')
 RESPONSES = {'jay': 'Server god sparks thank u',
-'thomas': 'loves it when it rains at download'
-}
+'thomas': 'loves it when it rains at download',
+"love u peepkin": "love u too"}
+member_lookup = {}
 
 intents = discord.Intents.default()
 intents.members = True
@@ -94,9 +95,23 @@ class CustomClient(discord.Client):
                         api.destroy_status(tweet.id)
                 await message.channel.send(f"We have deleted {count} total tweets with no likes or retweets.")
 
+            if message.content.lower().find("dump.users") == 0:
+                CustomClient.dump_users()
+                await message.channel.send(f"Dumped users to file")
+
             #if the message was not recognized as a command
             else:
                 print(f"{message.content} not a valid command")
+
+    def dump_users():
+        guild = discord.utils.get(client.guilds, name=GUILD)
+
+        for member in guild.members:
+            member_lookup[member.id] = {'discord_name': member.name,
+                                            'twitter_handle': None}
+        
+        with open('members.json', 'w') as outfile:
+            json.dump(member_lookup, outfile, sort_keys=True, indent=4)
 
 client = CustomClient(intents=intents)
 client.run(TOKEN)
