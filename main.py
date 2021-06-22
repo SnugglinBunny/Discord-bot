@@ -75,6 +75,7 @@ class CustomClient(discord.Client):
                     try:
                         api.update_status(status=escaped_status, media_ids=[media.media_id])
                     except:
+                        os.remove(filename)
                         return
                     #delete file
                     os.remove(filename)
@@ -86,7 +87,7 @@ class CustomClient(discord.Client):
             elif message.content in RESPONSES.keys():
                 await message.channel.send(RESPONSES[message.content])
 
-            elif message.content == 'bot.cleanse':
+            elif message.content == 'twitter.cleanse':
                 print(message.author)
                 count=0
                 for tweet in api.user_timeline(count=100):
@@ -95,7 +96,7 @@ class CustomClient(discord.Client):
                         api.destroy_status(tweet.id)
                 await message.channel.send(f"We have deleted {count} total tweets with no likes or retweets.")
 
-            if message.content.lower().find("dump.users") == 0:
+            elif message.content.lower().find("dump.users") == 0:
                 CustomClient.dump_users()
                 await message.channel.send(f"Dumped users to file")
 
