@@ -49,6 +49,9 @@ class CustomClient(discord.Client):
             if message.author == client.user or message.author.bot:
                 return
 
+            log = open(".log", "a")
+            log.write(f"{message.created_at}    {message.author.name}: {message.content}\n")
+
             if message.content.lower().find("tweet") == 0:
                  #clean user typed message
                 new_status = message.content.split(' ', 1)
@@ -102,7 +105,8 @@ class CustomClient(discord.Client):
 
             #if the message was not recognized as a command
             else:
-                print(f"{message.content} not a valid command")
+                log.write(f" not a valid command")
+        log.close()
 
     def dump_users():
         guild = discord.utils.get(client.guilds, name=GUILD)
