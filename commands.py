@@ -81,10 +81,10 @@ class TwitterCommand(Command):
         if len(subcommand) > 1:
             if subcommand[0] == 'tweet':
                 await self.send_tweet(message, subcommand[1])
-            elif subcommand[0] == 'cleanse':
-                await self.cleanse_timeline(message)
             else:
                 await self.send_tweet(message, subcommand[1])
+        elif subcommand[0] == 'cleanse':
+            await self.cleanse_timeline(message)
         else:
             await message.channel.send(f"That was not a valid command")
 
