@@ -33,12 +33,14 @@ class CustomClient(discord.Client):
 
             log = open(".log", "a")
             log.write(f"{message.created_at}    {message.author.name}: {message.content}\n")
+            if message.content[0] == '!':
+                command = self.commandHandler.GetCommand(message.content)
 
-            command = self.commandHandler.GetCommand(message.content)
 
-
-            if command is not None:
-                self.commandreply = await command.on_message(client, message)
+                if command is not None:
+                    self.commandreply = await command.on_message(client, message)
+                else:
+                    await message.channel.send("```To send a tweet type '!tw ' followed by your tweet\nTo @ someone on twitter put a space between the @ symbol and their twitter handle.```")
             log.close()
 
 

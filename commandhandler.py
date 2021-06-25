@@ -1,12 +1,12 @@
-from commands import HelloWorldCommand, TwitterCommand
+from commands import DiscordCommand, TwitterCommand
 import commands
 
 class CommandHandler:
     def __init__(self):
-        self.commands = [ HelloWorldCommand("hello"), TwitterCommand("twitter") ]
+        self.commands = [ DiscordCommand("!dump"), TwitterCommand("!tw") ]
 
     def GetCommand(self, commandText):
         for command in self.commands:
-            if commandText.split(' ', 1)[0].lower() == command.commandText:
+            if commandText[:3].lower() == command.commandText:
                 return command
         return None
