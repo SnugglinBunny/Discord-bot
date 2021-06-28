@@ -64,19 +64,16 @@ class TwitterCommand(Command):
         try:
             self.api.verify_credentials()
             print("Twitter Authentication OK")
-        except:
+        except Exception:
             print("Error during authentication")
     
     async def on_message(self, client, message):
         # clean user typed message
         removed_prefix = message.content.split('.')
-        print(removed_prefix)
         try:
             subcommand = removed_prefix[1].split(' ', 1)
-            print(subcommand)
         except:
             subcommand = message.content.split(' ', 1)
-            print(subcommand)
 
         if len(subcommand) > 1:
             if subcommand[0] == 'tweet':
@@ -112,7 +109,7 @@ class TwitterCommand(Command):
             try:
                 #update status with media (deprecated but works, use an alternative)
                 self.api.update_status(status=messageContent, media_ids=[media.media_id])
-            except:
+            except Exception:
                 #delete file
                 os.remove(filename)
         else:
@@ -120,9 +117,8 @@ class TwitterCommand(Command):
             await message.channel.send(f"Tweet sent https://twitter.com/{self.TWITTER_USER}/status/{self.api.user_timeline(screen_name=self.TWITTER_USER, count = 1)[0].id}")
     
     async def cleanse_timeline(self, message):
-        print(message.author)
         count=0
-        for tweet in self.api.user_timeline(count=25):
+        for tweet in self.api.user_timeline(count=100):
             if tweet.retweet_count == 0 and tweet.favorite_count == 0:
                 count+=1
                 self.api.destroy_status(tweet.id)

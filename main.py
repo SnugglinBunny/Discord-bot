@@ -40,7 +40,7 @@ class CustomClient(discord.Client):
                 if command is not None:
                     self.commandreply = await command.on_message(client, message)
                 else:
-                    await message.channel.send("```To send a tweet type '!tw ' followed by your tweet\nTo @ someone on twitter put a space between the @ symbol and their twitter handle.```")
+                    await message.channel.send("```To send a tweet to the group account type '!tw ' followed by your tweet\nTo @ someone on twitter put a space between the @ symbol and their twitter handle.```")
             log.close()
 
 

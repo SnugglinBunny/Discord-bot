@@ -3,7 +3,7 @@ import commands
 
 class CommandHandler:
     def __init__(self):
-        self.commands = [ DiscordCommand("!dump"), TwitterCommand("!tw") ]
+        self.commands = [ DiscordCommand("!du"), TwitterCommand("!tw") ]
 
     def GetCommand(self, commandText):
         for command in self.commands:
